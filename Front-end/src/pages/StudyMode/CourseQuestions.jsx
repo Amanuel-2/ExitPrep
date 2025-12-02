@@ -10,17 +10,16 @@ export default function CourseQuestions() {
   const navigate = useNavigate();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const questions = questionsByTopic[courseId] || [];
+  // support 16 demo courses by mapping courseId to one of the available topic buckets
+  const cid = parseInt(courseId, 10) || 1;
+  const topicId = ((cid - 1) % Object.keys(questionsByTopic).length) + 1;
+  const questions = questionsByTopic[topicId] || [];
   const currentQuestion = questions[currentQuestionIndex];
 
-  const courseNames = {
-    1: 'Data Structures',
-    2: 'Algorithms',
-    3: 'Operating Systems',
-    4: 'Database Systems',
-    5: 'Computer Networks',
-    6: 'Software Engineering',
-  };
+  const courseNames = Array.from({ length: 16 }).reduce((acc, _, i) => {
+    acc[i + 1] = `Computer Science ${i + 1}`;
+    return acc;
+  }, {});
 
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {

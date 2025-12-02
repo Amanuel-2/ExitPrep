@@ -230,7 +230,7 @@
 export default function Settings(){
   return(
     <div>
-      <h1 className="text-2xl font-bold text-white">cameing soon</h1>
+      <h1 className="text-2xl font-bold text-white">coming soon</h1>
     </div>
   )
 }
