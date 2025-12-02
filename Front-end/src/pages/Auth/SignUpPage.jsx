@@ -97,12 +97,14 @@ export default function SignUpPage() {
             </div>
 
             {/* Sign Up Button */}
-            <button
+            <Link to="/">
+              <button
               type="submit"
-              className="w-full py-2 bg-white text-black font-semibold rounded-xl hover:bg-zinc-100 transition shadow-md text-lg"
+              className="w-full py-2 bg-white text-black font-semibold rounded-xl hover:bg-zinc-800 transition shadow-md text-lg"
             >
               Create Account
             </button>
+            </Link>
           </form>
 
           {/* Divider */}
@@ -125,7 +127,7 @@ export default function SignUpPage() {
           <p className="text-center mt-8 text-zinc-400 text-sm">
             Already have an account?{' '}
             <Link className="text-white font-medium underline hover:no-underline" 
-            to="/Login">
+            to="/login">
             Sign In
             </Link>
           </p>
