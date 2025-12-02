@@ -1,7 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-
+import { Link } from "react-router-dom";
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
@@ -73,14 +70,12 @@ export default function LoginPage() {
             </div>
 
             {/* Continue button */}
-           <Link to="/">
-             <button
+            <button
               type="submit"
-              className="w-full py-2 bg-white text-black rounded-xl hover:bg-zinc-800 transition font-semibold"
+              className="w-full py-2 bg-white text-black rounded-xl hover:bg-zinc-200 transition font-semibold"
             >
               Continue
             </button>
-           </Link>
           </form>
 
           {/* Divider */}
@@ -103,7 +98,7 @@ export default function LoginPage() {
           {/* Sign up link */}
           <p className="text-center mt-6 text-zinc-400">
             Don't have an account?{' '}
-            <Link to="/signup" className="text-white font-medium underline hover:no-underline">Sign Up</Link>
+            <Link to="/SignUp" className="text-white font-medium underline hover:no-underline">Sign Up</Link>
           </p>
         </div>
       </div>
