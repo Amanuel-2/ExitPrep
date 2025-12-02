@@ -2,15 +2,15 @@ import { NavLink } from 'react-router-dom';
 
 export default function Sidebar({ isOpen }) {
   const navItems = [
-    { path: '/', icon: '📊', label: 'Dashboard' },
-    { path: '/study', icon: '📚', label: 'Study Mode' },
-    { path: '/exam', icon: '📝', label: 'Exam Mode' },
-    { path: '/settings', icon: '⚙️', label: 'Settings' },
+    { path: '/', label: 'Dashboard' },
+    { path: '/study', label: 'Study Mode' },
+    { path: '/exam', label: 'Exam Mode' },
+    { path: '/settings', label: 'Settings' },
   ];
 
   return (
     <aside
-      className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 z-40 ${
+      className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-black dark:bg-black border-r border-gray-200 dark:border-black transition-all duration-300 z-40 ${
         isOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full'
       }`}
     >

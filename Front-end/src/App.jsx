@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./Layouts/MainLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import CourseList from "./pages/StudyMode/CourseList";
@@ -14,10 +14,16 @@ export default function App() {
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
+          {/* Public auth routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          {/* Accept capitalized path and redirect to canonical lowercase */}
+          <Route path="/SignUp" element={<Navigate to="/signup" replace />} />
+
+          {/* Main app layout */}
           <Route element={<MainLayout />}>
-            <Route path="/login" element={<LoginPage/>}/>
-            <Route path="./signup" element={<SignUpPage/>}/>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/study" element={<CourseList />} />
             <Route path="/study/:courseId" element={<CourseQuestions />} />
             <Route path="/exam" element={<FullExam />} />

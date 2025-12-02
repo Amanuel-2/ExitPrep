@@ -1,5 +1,20 @@
-import {Link} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+
 export default function SignUpPage() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    // Demo only: simulate a short delay then navigate to dashboard
+    setTimeout(() => {
+      setLoading(false);
+      navigate('/dashboard');
+    }, 500);
+  };
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
       <div className="w-full max-w-md">
@@ -12,7 +27,7 @@ export default function SignUpPage() {
             <p className="text-zinc-400 text-sm mt-2">Fill in your details to get started</p>
           </div>
 
-          <form className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
 
             {/* Name Field */}
             <div>
@@ -99,9 +114,10 @@ export default function SignUpPage() {
             {/* Sign Up Button */}
             <button
               type="submit"
-              className="w-full py-2 bg-white text-black font-semibold rounded-xl hover:bg-zinc-100 transition shadow-md text-lg"
+              disabled={loading}
+              className="w-full py-2 bg-white text-black font-semibold rounded-xl hover:bg-zinc-100 transition shadow-md text-lg disabled:opacity-60"
             >
-              Create Account
+              {loading ? 'Creating...' : 'Create Account'}
             </button>
           </form>
 
@@ -125,8 +141,8 @@ export default function SignUpPage() {
           <p className="text-center mt-8 text-zinc-400 text-sm">
             Already have an account?{' '}
             <Link className="text-white font-medium underline hover:no-underline" 
-            to="/Login">
-            Sign In
+            to="/login">
+            Login
             </Link>
           </p>
         </div>

@@ -5,7 +5,7 @@ export default function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-10 bg-white border-b">
+    <header className="sticky top-0 z-10 bg-black text-white ">
       <div className="mx-auto max-w-7xl flex items-center justify-between p-3">
         <Link to="/" className="flex items-center gap-2">
           <img src="/logo.png" alt="ExitPrep" className="h-7 w-7" />
