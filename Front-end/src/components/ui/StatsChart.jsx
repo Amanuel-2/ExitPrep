@@ -1,7 +1,11 @@
 import React from 'react';
 
-// Simple responsive SVG line chart. No external libs.
-export default function StatsChart({ data = [3, 6, 4, 8, 7, 10, 9], labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], className = '' }) {
+// Futuristic SVG line chart with gradient and glow effects
+export default function StatsChart({ 
+  data = [3, 6, 4, 8, 7, 10, 9], 
+  labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], 
+  className = '' 
+}) {
   const width = 600;
   const height = 180;
   const padding = 24;
@@ -18,27 +22,77 @@ export default function StatsChart({ data = [3, 6, 4, 8, 7, 10, 9], labels = ['M
   return (
     <div className={`w-full ${className}`}>
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full">
-        {/* grid lines */}
-        <g stroke="#2d3748" strokeWidth={0.5}>
+        <defs>
+          <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="rgba(59, 130, 246, 0.4)" />
+            <stop offset="100%" stopColor="rgba(59, 130, 246, 0.05)" />
+          </linearGradient>
+          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="50%" stopColor="#a855f7" />
+            <stop offset="100%" stopColor="#06b6d4" />
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* Grid lines */}
+        <g stroke="rgba(255, 255, 255, 0.05)" strokeWidth={1}>
           {[0, 0.25, 0.5, 0.75, 1].map((t, i) => (
-            <line key={i} x1={padding} x2={width - padding} y1={padding + t * (height - padding * 2)} y2={padding + t * (height - padding * 2)} />
+            <line 
+              key={i} 
+              x1={padding} 
+              x2={width - padding} 
+              y1={padding + t * (height - padding * 2)} 
+              y2={padding + t * (height - padding * 2)} 
+            />
           ))}
         </g>
 
-        {/* area */}
-        <path d={`${pathD} L ${width - padding} ${height - padding} L ${padding} ${height - padding} Z`} fill="rgba(99,102,241,0.12)" stroke="none" />
+        {/* Area fill */}
+        <path 
+          d={`${pathD} L ${width - padding} ${height - padding} L ${padding} ${height - padding} Z`} 
+          fill="url(#chartGradient)" 
+          stroke="none" 
+        />
 
-        {/* line */}
-        <path d={pathD} fill="none" stroke="#6366f1" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+        {/* Line with gradient */}
+        <path 
+          d={pathD} 
+          fill="none" 
+          stroke="url(#lineGradient)" 
+          strokeWidth={3} 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+          filter="url(#glow)"
+        />
 
-        {/* points */}
+        {/* Points with glow */}
         {points.map((p, i) => (
-          <circle key={i} cx={p[0]} cy={p[1]} r={3.5} fill="#fff" stroke="#6366f1" strokeWidth={1.5} />
+          <g key={i}>
+            <circle cx={p[0]} cy={p[1]} r={6} fill="rgba(59, 130, 246, 0.3)" />
+            <circle cx={p[0]} cy={p[1]} r={4} fill="#3b82f6" stroke="#fff" strokeWidth={2} />
+          </g>
         ))}
 
-        {/* x labels */}
+        {/* X labels */}
         {points.map((p, i) => (
-          <text key={i} x={p[0]} y={height - 6} fontSize={10} textAnchor="middle" fill="#94a3b8">{labels[i]}</text>
+          <text 
+            key={i} 
+            x={p[0]} 
+            y={height - 6} 
+            fontSize={11} 
+            textAnchor="middle" 
+            fill="rgba(255, 255, 255, 0.5)"
+            fontWeight="500"
+          >
+            {labels[i]}
+          </text>
         ))}
       </svg>
     </div>

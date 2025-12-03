@@ -3,19 +3,19 @@ export default function ProgressBar({
   max = 100, 
   label = '', 
   showPercentage = true,
-  color = 'indigo',
+  color = 'blue',
   size = 'md',
   className = '' 
 }) {
   const percentage = Math.min(100, Math.max(0, (value / max) * 100));
   
   const colors = {
-    indigo: 'bg-indigo-600',
-    blue: 'bg-blue-600',
-    green: 'bg-green-600',
-    yellow: 'bg-yellow-600',
-    red: 'bg-red-600',
-    purple: 'bg-purple-600',
+    blue: 'from-blue-600 to-cyan-500',
+    purple: 'from-purple-600 to-pink-500',
+    green: 'from-green-600 to-emerald-500',
+    yellow: 'from-yellow-600 to-orange-500',
+    red: 'from-red-600 to-pink-600',
+    cyan: 'from-cyan-600 to-blue-500',
   };
 
   const sizes = {
@@ -29,21 +29,24 @@ export default function ProgressBar({
       {(label || showPercentage) && (
         <div className="flex justify-between items-center mb-2">
           {label && (
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-gray-300">
               {label}
             </span>
           )}
           {showPercentage && (
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+            <span className="text-sm text-gray-400">
               {percentage.toFixed(0)}%
             </span>
           )}
         </div>
       )}
-      <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full ${sizes[size]} overflow-hidden`}>
+      <div className={`w-full bg-zinc-800/50 rounded-full ${sizes[size]} overflow-hidden border border-zinc-700/30`}>
         <div
-          className={`${colors[color]} ${sizes[size]} rounded-full transition-all duration-500 ease-out`}
-          style={{ width: `${percentage}%` }}
+          className={`bg-gradient-to-r ${colors[color]} ${sizes[size]} rounded-full transition-all duration-700 ease-out shadow-lg`}
+          style={{ 
+            width: `${percentage}%`,
+            boxShadow: percentage > 0 ? `0 0 10px rgba(59, 130, 246, 0.5)` : 'none'
+          }}
         ></div>
       </div>
     </div>
