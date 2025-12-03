@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Send, Bot, User as UserIcon } from 'lucide-react';
 import Button from './ui/Button';
 
@@ -33,6 +34,22 @@ export default function ChatBox({ questionText, compact = false, onAssistantResp
     setIsTyping(true);
 
     // Simulate AI response
+    const scrollToBottomWithGap = (gap = 120) => {
+      try {
+        // Scroll the messages container into view, then adjust for a small gap
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        // Also scroll the window a little up so the last message sits above the fixed input
+        if (typeof window !== 'undefined' && gap) {
+          window.scrollBy({ top: -gap, left: 0, behavior: 'smooth' });
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    // ensure UI updates before scrolling
+    setTimeout(() => scrollToBottomWithGap(120), 60);
+
     setTimeout(() => {
       const responses = [
         'That\'s a great question! Let me break it down for you...',
@@ -45,7 +62,12 @@ export default function ChatBox({ questionText, compact = false, onAssistantResp
         role: 'assistant',
         content: responses[Math.floor(Math.random() * responses.length)],
       };
-      setMessages((prev) => [...prev, aiMessage]);
+      setMessages((prev) => {
+        const next = [...prev, aiMessage];
+        // after adding assistant reply, scroll so reply is visible with gap
+        setTimeout(() => scrollToBottomWithGap(140), 80);
+        return next;
+      });
       if (typeof onAssistantResponse === 'function') {
         try {
           onAssistantResponse(aiMessage.content);
@@ -76,7 +98,7 @@ export default function ChatBox({ questionText, compact = false, onAssistantResp
           </div>
         </div>
 
-        <div className="p-3 bg-black/10 overflow-y-auto space-y-3" style={{ maxHeight: `${compactMaxHeight}px` }}>
+        <div className="p-3 bg-black/10 overflow-y-auto space-y-3 pb-24 lg:pb-0" style={{ maxHeight: `${compactMaxHeight}px` }}>
           {recent.map((message, idx) => (
             <div key={idx} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {message.role === 'assistant' ? (
@@ -99,7 +121,8 @@ export default function ChatBox({ questionText, compact = false, onAssistantResp
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-3 border-t border-white/10">
+        {/* Desktop/large-screen input (in-panel) */}
+        <div className="p-3 border-t border-white/10 hidden lg:block">
           <div className="flex gap-2">
             <input
               type="text"
@@ -119,6 +142,31 @@ export default function ChatBox({ questionText, compact = false, onAssistantResp
           </div>
           <p className="text-xs text-gray-400 mt-2">AI can make a mistake — check important info</p>
         </div>
+
+        {/* Mobile fixed input rendered into document.body so it's fixed to viewport bottom */}
+        {typeof document !== 'undefined' && createPortal(
+          <div className="p-3 border-t border-white/10 fixed left-4 right-4 bottom-4 z-50 lg:hidden">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                placeholder="Ask any question about this question"
+                className="flex-1 px-3 py-2 glass-card-light border border-zinc-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-500 text-sm transition-all duration-300"
+              />
+              <button
+                onClick={handleSend}
+                className="px-3 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white transition-all duration-300 shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 text-sm"
+                disabled={!input.trim()}
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mt-2">AI can make a mistake — check important info</p>
+          </div>,
+          document.body
+        )}
       </div>
     );
   }
