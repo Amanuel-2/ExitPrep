@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Send, Bot, User as UserIcon } from 'lucide-react';
 import Button from './ui/Button';
 
-export default function ChatBox({ questionText }) {
+export default function ChatBox({ questionText, compact = false, onAssistantResponse }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -20,6 +20,9 @@ export default function ChatBox({ questionText }) {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const latestAssistant = [...messages].slice().reverse().find((m) => m.role === 'assistant');
+  const latestUser = [...messages].slice().reverse().find((m) => m.role === 'user');
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -43,9 +46,82 @@ export default function ChatBox({ questionText }) {
         content: responses[Math.floor(Math.random() * responses.length)],
       };
       setMessages((prev) => [...prev, aiMessage]);
+      if (typeof onAssistantResponse === 'function') {
+        try {
+          onAssistantResponse(aiMessage.content);
+        } catch (e) {
+          // ignore errors from parent
+        }
+      }
       setIsTyping(false);
     }, 1000);
   };
+
+  if (compact) {
+    // Compact chat-mode: show recent conversation like a chat app
+    const recent = messages.slice(-8);
+    // compute a dynamic max height so compact box grows with more messages but remains capped
+    const compactMaxHeight = Math.min(48 + messages.length * 56, Math.round(window?.innerHeight * 0.6) || 420);
+    return (
+      <div className="glass-card rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+        <div className="p-3 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-md bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white">
+              <Bot className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-white">AI Assistant</div>
+              <div className="text-xs text-gray-400">Ask about this question</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-3 bg-black/10 overflow-y-auto space-y-3" style={{ maxHeight: `${compactMaxHeight}px` }}>
+          {recent.map((message, idx) => (
+            <div key={idx} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              {message.role === 'assistant' ? (
+                <div className="max-w-[85%] p-2 rounded-lg glass-card-light border border-white/10 text-sm text-gray-200">
+                  {message.content}
+                </div>
+              ) : (
+                <div className="max-w-[85%] p-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm">
+                  {message.content}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {isTyping && (
+            <div className="flex justify-start">
+              <div className="max-w-[85%] p-2 rounded-lg glass-card-light border border-white/10 text-sm text-gray-200">AI is typing...</div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div className="p-3 border-t border-white/10">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Ask any question about this question"
+              className="flex-1 px-3 py-2 glass-card-light border border-zinc-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-500 text-sm transition-all duration-300"
+            />
+            <button
+              onClick={handleSend}
+              className="px-3 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white transition-all duration-300 shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 text-sm"
+              disabled={!input.trim()}
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+          <p className="text-xs text-gray-400 mt-2">AI can make a mistake — check important info</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full glass-card rounded-2xl shadow-2xl border border-white/10 overflow-hidden">

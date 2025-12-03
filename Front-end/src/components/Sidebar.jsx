@@ -1,29 +1,18 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, FileText, Settings } from 'lucide-react';
+import { LayoutDashboard, BookOpen, FileText } from 'lucide-react';
 
 export default function Sidebar({ isOpen }) {
   const navItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/study', label: 'Study Mode', icon: BookOpen },
     { path: '/exam', label: 'Exam Mode', icon: FileText },
-    { path: '/settings', label: 'Settings', icon: Settings },
   ];
 
   return (
     <>
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden animate-fade-in"
-          onClick={() => {}}
-        />
-      )}
-
-      {/* Sidebar */}
+      {/* Sidebar (hidden on small screens) */}
       <aside
-        className={`fixed left-0 top-[73px] h-[calc(100vh-73px)] glass-card border-r border-white/10 transition-all duration-300 z-40 ${
-          isOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full lg:translate-x-0'
-        }`}
+        className={`hidden lg:fixed lg:left-0 lg:top-[73px] lg:h-[calc(100vh-73px)] lg:w-64 lg:block glass-card border-r border-white/10 transition-all duration-300 lg:z-40`}
       >
         <nav className="p-4 space-y-2">
           {navItems.map((item) => {

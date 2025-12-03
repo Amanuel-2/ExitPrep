@@ -1,23 +1,30 @@
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { Menu, X, LogOut, User } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, User } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 
 export default function Navbar({ onMenuClick }) {
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    function handleClick(e) {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 glass-card border-b border-white/10 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl flex items-center justify-between px-4 sm:px-6 py-4">
         {/* Logo */}
         <div className="flex items-center gap-4">
-          <button
-            onClick={onMenuClick}
-            className="lg:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
-          >
-            <Menu className="w-6 h-6 text-gray-300" />
-          </button>
           <Link to="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg neon-glow-blue">
               <span className="text-xl font-bold text-white">E</span>
@@ -54,19 +61,41 @@ export default function Navbar({ onMenuClick }) {
         {/* User Menu */}
         <div className="flex items-center gap-3">
           {user ? (
-            <>
-              <div className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-lg glass-card-light border border-zinc-700/50">
-                <User className="w-4 h-4 text-blue-400" />
-                <span className="text-sm text-gray-300">{user.name || user.email}</span>
-              </div>
+            <div className="relative" ref={profileRef}>
               <button
-                onClick={logout}
-                className="p-2 rounded-lg glass-card-light hover:bg-red-500/10 hover:border-red-500/30 border border-zinc-700/50 transition-all duration-300 group"
-                title="Logout"
+                onClick={() => setProfileOpen((s) => !s)}
+                className="flex items-center gap-3 px-3 py-2 rounded-lg glass-card-light hover:bg-white/5 transition-all duration-200"
+                aria-expanded={profileOpen}
+                aria-haspopup="true"
               >
-                <LogOut className="w-5 h-5 text-gray-400 group-hover:text-red-400 transition-colors" />
+                <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-sm font-medium text-white">
+                  {user.name ? user.name.charAt(0).toUpperCase() : (user.email ? user.email.charAt(0).toUpperCase() : 'U')}
+                </div>
+                <span className="hidden sm:inline text-sm text-gray-300">{user.name || 'Profile'}</span>
               </button>
-            </>
+
+              {profileOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white/5 backdrop-blur-lg rounded-lg shadow-lg p-3 text-white z-50 animate-fade-in origin-top-right transition-all">
+                  <div className="flex items-center gap-3 p-2">
+                    <div className="w-12 h-12 rounded-full bg-zinc-700 flex items-center justify-center text-white text-lg">
+                      {user.name ? user.name.charAt(0).toUpperCase() : (user.email ? user.email.charAt(0).toUpperCase() : 'U')}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{user.name || 'User'}</div>
+                      <div className="text-sm text-gray-300 truncate">{user.email}</div>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <button
+                      onClick={() => { setProfileOpen(false); logout(); }}
+                      className="w-full px-3 py-2 rounded-lg bg-red-600/90 hover:bg-red-600 transition-colors text-sm font-medium"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             <Link
               to="/login"
@@ -98,7 +127,6 @@ export default function Navbar({ onMenuClick }) {
               { to: "/", label: "Dashboard" },
               { to: "/study", label: "Study" },
               { to: "/exam", label: "Exam" },
-              { to: "/settings", label: "Settings" },
             ].map((item) => (
               <NavLink
                 key={item.to}

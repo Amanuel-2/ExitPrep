@@ -13,6 +13,7 @@ export default function FullExam() {
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(60 * 60);
   const [examFinished, setExamFinished] = useState(false);
+  const [exitModalOpen, setExitModalOpen] = useState(false);
 
   useEffect(() => {
     if (!examStarted || examFinished) return;
@@ -55,6 +56,7 @@ export default function FullExam() {
     return { correct, total: questions.length, percentage: (correct / questions.length) * 100 };
   };
 
+  // Start screen — shown within the normal app layout. Only after pressing Start do we switch to the immersive full-screen overlay below.
   if (!examStarted) {
     return (
       <div className="max-w-2xl mx-auto animate-fade-in">
@@ -110,88 +112,76 @@ export default function FullExam() {
     const passed = score.percentage >= 70;
     
     return (
-      <div className="max-w-2xl mx-auto animate-fade-in">
-        <Card className="p-8">
-          <div className="text-center">
-            <div className={`w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${
-              passed ? 'from-green-600 to-emerald-600' : 'from-orange-600 to-red-600'
-            } flex items-center justify-center shadow-lg ${
-              passed ? 'neon-glow-blue' : ''
-            }`}>
-              {passed ? (
-                <Award className="w-12 h-12 text-white" />
-              ) : (
-                <FileText className="w-12 h-12 text-white" />
-              )}
-            </div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Exam Completed!
-            </h1>
-            <p className="text-gray-400 mb-8">
-              {passed ? 'Congratulations on passing!' : 'Keep practicing to improve your score'}
-            </p>
-            
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <div className="glass-card-light p-5 rounded-xl border border-blue-500/30">
-                <p className="text-sm text-gray-400 mb-2">Score</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                  {score.percentage.toFixed(1)}%
-                </p>
-              </div>
-              <div className="glass-card-light p-5 rounded-xl border border-green-500/30">
-                <div className="flex items-center justify-center mb-2">
-                  <CheckCircle className="w-4 h-4 text-green-400 mr-1" />
-                  <p className="text-sm text-gray-400">Correct</p>
-                </div>
-                <p className="text-3xl font-bold text-green-400">
-                  {score.correct}
-                </p>
-              </div>
-              <div className="glass-card-light p-5 rounded-xl border border-red-500/30">
-                <div className="flex items-center justify-center mb-2">
-                  <XCircle className="w-4 h-4 text-red-400 mr-1" />
-                  <p className="text-sm text-gray-400">Incorrect</p>
-                </div>
-                <p className="text-3xl font-bold text-red-400">
-                  {score.total - score.correct}
-                </p>
-              </div>
-            </div>
-
-            <div className={`p-5 rounded-xl mb-8 border ${
-              passed
-                ? 'glass-card-light border-green-500/30 bg-green-500/5'
-                : 'glass-card-light border-orange-500/30 bg-orange-500/5'
-            }`}>
-              <p className={`font-semibold flex items-center justify-center gap-2 ${
-                passed ? 'text-green-400' : 'text-orange-400'
+      <div className="fixed inset-0 bg-gradient-to-br from-black via-zinc-900 to-black flex items-center justify-center p-4 z-50">
+        <div className="w-full max-w-4xl">
+          <Card className="p-8">
+            <div className="text-center">
+              <div className={`w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${
+                passed ? 'from-green-600 to-emerald-600' : 'from-orange-600 to-red-600'
+              } flex items-center justify-center shadow-lg ${
+                passed ? 'neon-glow-blue' : ''
               }`}>
                 {passed ? (
-                  <>
-                    <CheckCircle className="w-5 h-5" />
-                    Great job! You passed the exam.
-                  </>
+                  <Award className="w-12 h-12 text-white" />
                 ) : (
-                  <>
-                    <AlertCircle className="w-5 h-5" />
-                    Keep studying to improve your score.
-                  </>
+                  <FileText className="w-12 h-12 text-white" />
                 )}
-              </p>
-            </div>
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">Exam Completed!</h1>
+              <p className="text-gray-400 mb-8">{passed ? 'Congratulations on passing!' : 'Keep practicing to improve your score'}</p>
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button onClick={() => navigate('/')} variant="secondary" className="flex-1">
-                <Home className="w-4 h-4 mr-2" />
-                Dashboard
-              </Button>
-              <Button onClick={() => window.location.reload()} className="flex-1">
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Retake Exam
-              </Button>
+              <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="glass-card-light p-5 rounded-xl border border-blue-500/30">
+                  <p className="text-sm text-gray-400 mb-2">Score</p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{score.percentage.toFixed(1)}%</p>
+                </div>
+                <div className="glass-card-light p-5 rounded-xl border border-green-500/30">
+                  <div className="flex items-center justify-center mb-2">
+                    <CheckCircle className="w-4 h-4 text-green-400 mr-1" />
+                    <p className="text-sm text-gray-400">Correct</p>
+                  </div>
+                  <p className="text-3xl font-bold text-green-400">{score.correct}</p>
+                </div>
+                <div className="glass-card-light p-5 rounded-xl border border-red-500/30">
+                  <div className="flex items-center justify-center mb-2">
+                    <XCircle className="w-4 h-4 text-red-400 mr-1" />
+                    <p className="text-sm text-gray-400">Incorrect</p>
+                  </div>
+                  <p className="text-3xl font-bold text-red-400">{score.total - score.correct}</p>
+                </div>
+              </div>
+
+              <div className={`p-5 rounded-xl mb-8 border ${
+                passed ? 'glass-card-light border-green-500/30 bg-green-500/5' : 'glass-card-light border-orange-500/30 bg-orange-500/5'
+              }`}>
+                <p className={`font-semibold flex items-center justify-center gap-2 ${passed ? 'text-green-400' : 'text-orange-400'}`}>
+                  {passed ? (
+                    <>
+                      <CheckCircle className="w-5 h-5" />
+                      Great job! You passed the exam.
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-5 h-5" />
+                      Keep studying to improve your score.
+                    </>
+                  )}
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button onClick={() => navigate('/')} variant="secondary" className="flex-1">
+                  <Home className="w-4 h-4 mr-2" />
+                  Dashboard
+                </Button>
+                <Button onClick={() => window.location.reload()} className="flex-1">
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Retake Exam
+                </Button>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -200,129 +190,136 @@ export default function FullExam() {
   const answeredCount = Object.keys(answers).length;
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Timer and Progress */}
-      <Card className="p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="fixed inset-0 bg-gradient-to-br from-black via-zinc-900 to-black p-4 overflow-auto z-50">
+      <div className="max-w-5xl mx-auto space-y-6 animate-fade-in">
+        {/* Top bar: Timer, Progress and Exit */}
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                timeLeft < 300 
-                  ? 'bg-gradient-to-br from-red-600 to-pink-600' 
-                  : 'bg-gradient-to-br from-blue-600 to-cyan-600'
-              }`}>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${timeLeft < 300 ? 'bg-gradient-to-br from-red-600 to-pink-600' : 'bg-gradient-to-br from-blue-600 to-cyan-600'}`}>
                 <Clock className="w-6 h-6 text-white" />
               </div>
               <div>
                 <p className="text-sm text-gray-400">Time Remaining</p>
-                <p className={`text-2xl font-bold ${
-                  timeLeft < 300 ? 'text-red-400' : 'text-white'
-                }`}>
-                  {formatTime(timeLeft)}
-                </p>
+                <p className={`text-2xl font-bold ${timeLeft < 300 ? 'text-red-400' : 'text-white'}`}>{formatTime(timeLeft)}</p>
               </div>
             </div>
             <div className="h-12 w-px bg-zinc-700/50"></div>
             <div>
               <p className="text-sm text-gray-400">Progress</p>
-              <p className="text-2xl font-bold text-white">
-                {answeredCount}/{questions.length}
-              </p>
+              <p className="text-2xl font-bold text-white">{answeredCount}/{questions.length}</p>
             </div>
           </div>
-          <Button onClick={handleFinishExam} variant="success">
-            Finish Exam
-          </Button>
-        </div>
-      </Card>
 
-      {/* Question */}
-      <Card className="p-6">
-        <div className="mb-6">
-          <div className="inline-block px-3 py-1 rounded-lg bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 mb-4">
-            <span className="text-sm font-semibold text-blue-400">
-              Question {currentQuestionIndex + 1} of {questions.length}
-            </span>
+          <div className="flex items-center gap-2">
+            <Button onClick={() => setExitModalOpen(true)} variant="secondary" className="rounded-lg">
+              Exit Exam
+            </Button>
+            <Button onClick={handleFinishExam} variant="success">Finish Exam</Button>
           </div>
-          <h3 className="text-xl font-bold text-white">
-            {currentQuestion.text}
-          </h3>
         </div>
 
-        <div className="space-y-3 mb-6">
-          {currentQuestion.options.map((option, index) => {
-            const isSelected = answers[currentQuestion.id] === index;
-            const optionLabel = String.fromCharCode(65 + index);
+        {/* Question Card */}
+        <Card className="p-6">
+          <div className="mb-6">
+            <div className="inline-block px-3 py-1 rounded-lg bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 mb-4">
+              <span className="text-sm font-semibold text-blue-400">Question {currentQuestionIndex + 1} of {questions.length}</span>
+            </div>
+            <h3 className="text-xl font-bold text-white">{currentQuestion.text}</h3>
+          </div>
 
-            return (
-              <button
-                key={index}
-                onClick={() => handleAnswerSelect(currentQuestion.id, index)}
-                className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-300 group ${
-                  isSelected
-                    ? 'glass-card border-blue-500/50 shadow-lg neon-glow-blue'
-                    : 'glass-card-light border-zinc-700/30 hover:border-zinc-600 hover:bg-white/5'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold flex-shrink-0 transition-all duration-300 ${
-                      isSelected
-                        ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white'
-                        : 'bg-zinc-800 text-gray-400 group-hover:bg-zinc-700'
+          <div className="space-y-3 mb-6">
+            {currentQuestion.options.map((option, index) => {
+              const isSelected = answers[currentQuestion.id] === index;
+              const optionLabel = String.fromCharCode(65 + index);
+
+              return (
+                <button key={index} onClick={() => handleAnswerSelect(currentQuestion.id, index)} className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-300 group ${isSelected ? 'glass-card border-blue-500/50 shadow-lg neon-glow-blue' : 'glass-card-light border-zinc-700/30 hover:border-zinc-600 hover:bg-white/5'}`}>
+                  <div className="flex items-center gap-4">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold flex-shrink-0 transition-all duration-300 ${isSelected ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white' : 'bg-zinc-800 text-gray-400 group-hover:bg-zinc-700'}`}>{optionLabel}</div>
+                    <span className={`text-sm flex-1 transition-colors duration-300 ${isSelected ? 'text-white font-medium' : 'text-gray-300 group-hover:text-white'}`}>{option}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Navigation */}
+          <div>
+            {/* Desktop / larger screens: Prev - Numbers - Next */}
+            <div className="hidden sm:flex flex-row justify-between items-center gap-4">
+              <Button onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))} disabled={currentQuestionIndex === 0} variant="secondary">
+                <ChevronLeft className="w-4 h-4 mr-1" />Previous
+              </Button>
+
+              <div className="flex gap-2 flex-wrap justify-center max-w-md">
+                {questions.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentQuestionIndex(index)}
+                    className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                      index === currentQuestionIndex
+                        ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg'
+                        : answers[questions[index].id] !== undefined
+                        ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white'
+                        : 'glass-card-light text-gray-400 hover:bg-white/5 border border-zinc-700/30'
                     }`}
                   >
-                    {optionLabel}
-                  </div>
-                  <span className={`text-sm flex-1 transition-colors duration-300 ${
-                    isSelected ? 'text-white font-medium' : 'text-gray-300 group-hover:text-white'
-                  }`}>
-                    {option}
-                  </span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                    {index + 1}
+                  </button>
+                ))}
+              </div>
 
-        {/* Navigation */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <Button
-            onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))}
-            disabled={currentQuestionIndex === 0}
-            variant="secondary"
-          >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Previous
-          </Button>
-          
-          <div className="flex gap-2 flex-wrap justify-center max-w-md">
-            {questions.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentQuestionIndex(index)}
-                className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                  index === currentQuestionIndex
-                    ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg'
-                    : answers[questions[index].id] !== undefined
-                    ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white'
-                    : 'glass-card-light text-gray-400 hover:bg-white/5 border border-zinc-700/30'
-                }`}
-              >
-                {index + 1}
-              </button>
-            ))}
+              <Button onClick={() => setCurrentQuestionIndex(Math.min(questions.length - 1, currentQuestionIndex + 1))} disabled={currentQuestionIndex === questions.length - 1}>Next <ChevronRight className="w-4 h-4 ml-1" /></Button>
+            </div>
+
+            {/* Mobile: Prev and Next on a top row, numbers below */}
+            <div className="sm:hidden flex flex-col items-center gap-3">
+              <div className="w-full flex items-center justify-between">
+                <Button onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))} disabled={currentQuestionIndex === 0} variant="secondary" className="flex-1 mr-2">
+                  {"<  `"}Previous
+                </Button>
+                <Button onClick={() => setCurrentQuestionIndex(Math.min(questions.length - 1, currentQuestionIndex + 1))} disabled={currentQuestionIndex === questions.length - 1} className="flex-1 ml-2">
+                  Next {"  >"}
+                </Button>
+              </div>
+
+              <div className="flex gap-2 flex-wrap justify-center w-full">
+                {questions.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentQuestionIndex(index)}
+                    className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                      index === currentQuestionIndex
+                        ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg'
+                        : answers[questions[index].id] !== undefined
+                        ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white'
+                        : 'glass-card-light text-gray-400 hover:bg-white/5 border border-zinc-700/30'
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
+        </Card>
 
-          <Button
-            onClick={() => setCurrentQuestionIndex(Math.min(questions.length - 1, currentQuestionIndex + 1))}
-            disabled={currentQuestionIndex === questions.length - 1}
-          >
-            Next
-            <ChevronRight className="w-4 h-4 ml-1" />
-          </Button>
-        </div>
-      </Card>
+        {/* Exit confirmation modal */}
+        {exitModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center z-60">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setExitModalOpen(false)} />
+            <div className="relative w-full max-w-md bg-white/5 backdrop-blur-lg rounded-lg shadow-2xl p-6 z-70 animate-fade-in">
+              <h3 className="text-lg font-semibold text-white mb-2">Are you sure you want to exit the exam?</h3>
+              <p className="text-sm text-gray-300 mb-4">If you exit, your current progress will be saved but the exam will end.</p>
+              <div className="flex gap-3 justify-end">
+                <button onClick={() => setExitModalOpen(false)} className="px-4 py-2 rounded-lg bg-zinc-700 text-white">Cancel</button>
+                <button onClick={() => { setExitModalOpen(false); navigate('/'); }} className="px-4 py-2 rounded-lg bg-red-600 text-white">Yes, Exit</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

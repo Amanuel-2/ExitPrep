@@ -30,6 +30,10 @@ export default function CourseQuestions() {
     }
   };
 
+  const [assistantReply, setAssistantReply] = useState(null);
+  const [assistantExpanded, setAssistantExpanded] = useState(false);
+  const [mobileChatVisible, setMobileChatVisible] = useState(true);
+
   if (!currentQuestion) {
     return (
       <div className="text-center py-12 animate-fade-in">
@@ -78,11 +82,55 @@ export default function CourseQuestions() {
         {/* Question Section */}
         <div className="lg:col-span-2">
           <QuestionCard question={currentQuestion} onNext={handleNext} />
+
+          {/* Assistant reply box (appears after a query) */}
+          {assistantReply && (
+            <div className="mt-6">
+              <div className={`rounded-xl border border-white/10 text-gray-200 transition-all duration-300 ${assistantExpanded ? 'glass-card-light p-6 max-h-64 overflow-y-auto' : 'glass-card-light p-4'}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-md bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3C7 3 3.5 6.5 3.5 11C3.5 13.2 4.4 15.2 6 16.6V21L10.6 18.5C11.9 18.9 13.4 19.1 15 19.1C20 19.1 23.5 15.6 23.5 10.6C23.5 5.6 19 3 12 3Z" stroke="none" fill="white"/></svg>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-300 font-semibold mb-1">AI Assistant</div>
+                      <div className={`text-sm ${assistantExpanded ? 'text-gray-100' : 'text-gray-200'}`}>{assistantReply}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {!assistantExpanded && (
+                      <button
+                        onClick={() => setAssistantExpanded(true)}
+                        className="text-xs text-blue-400 hover:underline"
+                      >
+                        Expand
+                      </button>
+                    )}
+                    {assistantExpanded && (
+                      <button
+                        onClick={() => setAssistantExpanded(false)}
+                        className="text-xs text-gray-400 hover:underline"
+                      >
+                        Collapse
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Chat box for small screens: render below the question so it does not cover content */}
+          <div className="mt-6 lg:hidden">
+            <ChatBox questionText={currentQuestion.text} compact onAssistantResponse={(text) => { setAssistantReply(text); setAssistantExpanded(true); }} />
+          </div>
         </div>
 
-        {/* Chat Box Section */}
-        <div className="lg:col-span-1 h-[500px] lg:h-[600px]">
-          <ChatBox questionText={currentQuestion.text} />
+        {/* Right column: show chat beside the question without covering it */}
+        <div className="lg:col-span-1 hidden lg:block">
+          <div className="sticky top-24 w-full max-w-[520px]">
+            <ChatBox questionText={currentQuestion.text} compact onAssistantResponse={(text) => { setAssistantReply(text); setAssistantExpanded(true); }} />
+          </div>
         </div>
       </div>
     </div>
